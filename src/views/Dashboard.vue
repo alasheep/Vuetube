@@ -4,29 +4,23 @@
 
         <div class="tabs">
             <ul>
-                <li class="is-active"><a>Newest</a></li>
-                <li v-for="category in categories"><a>{{ category.title }}</a></li>
-                <!-- {{getInfo()}} -->
-
+                <li :class="{ 'is-active' : activeCategory === 'Newest' }"><a>Newest</a></li>
+                <li v-for="category in categories" :class="{ 'is-active' : activeCategory === category.title }">
+                    <a @click="setCategory(category.title)">{{ category.title }}</a>
+                </li>
             </ul>
         </div>
-
-        <!-- <div>
-        <article v-for="category in categories">
-            <h1>{{ category.title }}</h1>
-        </article>
-        </div> -->
     </div>
 </template>
 
 <script>
 import { db } from '../main'
-// var categories = []
 export default {
     name:"dashboard",
     data () {
         return {
-            categories : []
+            categories : [],
+            activeCategory : 'Newest'
         }
     },
     created () {
@@ -42,18 +36,15 @@ export default {
 
                 this.categories = balls;
             });
-
     },
-    // firestore () {
-    //     return {
-    //         categories: db.collection('categories')
-    //         // booksRef
-    //     }
-    // },
+    firestore () {
+        return {
+            categories: db.collection('categories')
+        }
+    },
     methods: {
-        getInfo () {
-            var data = db.collection('categories');
-            console.log(data);
+        setCategory (title) {
+            this.activeCategory = title
         }
     }
 
