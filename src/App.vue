@@ -43,7 +43,10 @@
                   <button @click="showCategoryForm =!showCategoryForm" class="button is-primary">Add category</button>
                 </p>
                 <p class="control">
-                  <button @click="logOut" class="button is-danger">Log out</button>
+                  <button @click="showMovieForm = !showMovieForm" class="button is-primary">Add movie</button>
+                </p>
+                <p class="control">
+                  <button @click="logout" class="button is-danger">Log out</button>
                 </p>
                </div>
             </div>
@@ -70,6 +73,34 @@
 
     </div>
 
+    <div class="modal" :class="{ 'is-active' : showMovieForm }">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <form @submit.prevent="addMovie">
+          <div class="field">
+            <input type="text" class="input" v-model="title" placeholder="Title">
+          </div>
+
+          <div class="field">
+            <input type="text" class="input" v-model="url" placeholder="URL">
+          </div>
+
+          <div class="field">
+            <select v-model="category">
+              <option value="empty" selected>Choose category</option>
+              <option v-for="category in categories" :value="category.id">{{category.title}}</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <button class="button is-success">Add</button>
+          </div>
+        </form>
+      </div>
+      <button class="modal-close is-large" aria-label="close" @click="showMovieForm=!showMovieForm"></button>
+
+    </div>
+
     <router-view />
   </div>
 </template>
@@ -82,8 +113,18 @@ export default {
   data () {
     return {
       isAuthenticated : false,
-      showCategoryForm : false
+      showCategoryForm : false,
+      showMovieForm : false,
+      title : '',
+      url : '',
+      category : 'empty',
+      categories : []
     }
+  },
+  firestore () {
+      return {
+          categories: db.collection('categories')
+      }
   },
   created () {
         firebase.auth().onAuthStateChanged(user => {
@@ -93,6 +134,19 @@ export default {
                 this.$router.push('/dashboard')
             }
         })
+
+        db.collection('categories')
+            .onSnapshot((ballsRef) => {
+                const balls = [];
+                ballsRef.forEach((doc) => {
+                const ball = doc.data();
+                ball.id = doc.id;
+                balls.push(ball);
+                });
+                console.log('Received Balls feed:', balls);
+
+                this.categories = balls;
+            });
   },
   methods: {
     addCategory() {
@@ -105,7 +159,25 @@ export default {
         this.showCategoryForm = false
         this.title = ''
     },
-    logOut() {
+    addMovie() {
+      if (this.title && this.category !== 'empty') {
+        const movie = {
+          title : this.title,
+          url : this.url
+        }
+
+        db.collection('categories').doc(this.category).collection('movies').add(movie)
+
+        this.title = ''
+        this.url = ''
+        this.category = 'empty'
+        this.showMovieForm = false
+      }
+      else {
+        alert('You have to fill out all the fields!')
+      }
+    },
+    logout() {
       console.log('Log out')
 
       firebase.auth().signOut()
