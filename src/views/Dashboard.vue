@@ -14,7 +14,7 @@
         </div>
 
         <tab-movie
-            category="Newest"
+             category="Newest"
             v-if="activeCategory === 'Newest'"
             :categories="categories">
         </tab-movie>
