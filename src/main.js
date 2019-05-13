@@ -20,7 +20,7 @@ var config = {
 firebase.initializeApp(config);
 
 export const db = firebase.firestore();
-export const categoryCollection = db.collection('categories');
+// export const categoryCollection = db.collection('categories');
 
 // categoryCollection
 //   .onSnapshot((ballsRef) => {

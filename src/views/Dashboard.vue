@@ -4,7 +4,9 @@
 
         <div class="tabs">
             <ul>
-                <li :class="{ 'is-active' : activeCategory === 'Newest' }"><a>Newest</a></li>
+                <li :class="{ 'is-active' : activeCategory === 'Newest' }">
+                    <a @click="setCategory('Newest')">Newest</a>
+                </li>
                 <li v-for="category in categories" :class="{ 'is-active' : activeCategory === category.title }">
                     <a @click="setCategory(category.title)">{{ category.title }}</a>
                 </li>
@@ -12,9 +14,16 @@
         </div>
 
         <tab-movie
+            category="Newest"
+            v-if="activeCategory === 'Newest'"
+            :categories="categories">
+        </tab-movie>
+
+        <tab-movie
             v-for="category in categories"
             :key="category.id"
-            :category="category.id">
+            :category="category.id"
+            v-if="activeCategory === category.title">
         </tab-movie>
     </div>
 </template>
@@ -48,8 +57,10 @@ export default {
             });
     },
     firestore () {
-        return {
-            categories: db.collection('categories')
+        if (this.$props.category !== 'Newest') {
+            return {
+                categories: db.collection('categories')
+            }
         }
     },
     methods: {
